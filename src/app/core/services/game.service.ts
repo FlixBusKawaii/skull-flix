@@ -15,7 +15,8 @@ export class GameService {
   private readonly gamesState = signal<Game[]>(this.storage.getGames());
   readonly games = this.gamesState.asReadonly();
 
-  createGame(playerNames: string[], roundCount: 6 | 8 | 10): Game | null {
+  createGame(playerNames: string[]): Game | null {
+    const roundCount = 10;
     const names = playerNames.map((name) => name.trim());
 
     if (names.length < 2 || names.length > 8 || names.some((name) => name.length === 0)) {
@@ -116,6 +117,21 @@ export class GameService {
   getManualScores(gameId: string): Map<string, number> | null {
     const game = this.getGame(gameId);
     return game ? this.calculateManualGameScores(game) : null;
+  }
+
+  canFinishGame(gameId: string): boolean {
+    const game = this.getGame(gameId);
+
+    if (!game || game.status !== 'in-progress') return false;
+
+    return (
+      game.rounds.length === 10 &&
+      game.rounds.every(
+        (round) =>
+          round.scores.length === game.players.length &&
+          round.scores.every((score) => score.points !== null),
+      )
+    );
   }
 
   finishGame(gameId: string): boolean {

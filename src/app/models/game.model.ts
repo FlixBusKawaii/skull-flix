@@ -8,7 +8,7 @@ export interface Game {
   createdAt: string;
   completedAt: string | null;
   status: GameStatus;
-  roundCount: 6 | 8 | 10;
+  roundCount: 10;
   players: Player[];
   rounds: Round[];
   winnerId: string | null;

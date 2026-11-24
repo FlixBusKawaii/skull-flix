@@ -19,6 +19,8 @@ export class ScoreTable {
     points: number | null;
   }>();
 
+  readonly readOnly = input(false);
+
   onScoreInput(roundNumber: number, playerId: string, event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input.value.trim();
