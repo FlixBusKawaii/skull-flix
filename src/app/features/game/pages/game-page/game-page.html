@@ -6,17 +6,204 @@
     </header>
 
     <section>
+      @if (showResultsModal()) {
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          role="presentation"
+        >
+          <div
+            class="w-full max-w-md rounded-2xl border border-[#D7AD57] bg-[#172B35] p-6 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="results-dialog-title"
+          >
+            <div class="mb-5 text-center">
+              <div class="mb-3 text-4xl text-[#D7AD57]">🏆</div>
+
+              <h2 id="results-dialog-title" class="text-2xl font-bold text-[#D7AD57]">
+                Partie terminée !
+              </h2>
+
+              @if (winnerName(); as winner) {
+                <p class="mt-2 text-[#E8DFC9]">
+                  Félicitations à <strong>{{ winner }}</strong> !
+                </p>
+              } @else {
+                <p class="mt-2 text-[#E8DFC9]">
+                  Égalité ! Plusieurs joueurs ont obtenu le meilleur score.
+                </p>
+              }
+            </div>
+
+            <div class="border-t border-[#244854] pt-4">
+              <h3 class="mb-3 font-semibold text-[#E8DFC9]">Classement final</h3>
+
+              <div class="space-y-2">
+                @for (player of finalScores(); track player.id; let i = $index) {
+                  <div class="flex items-center justify-between rounded-lg bg-[#244854] px-4 py-3">
+                    <span class="text-[#E8DFC9]"> {{ i + 1 }}. {{ player.name }} </span>
+
+                    <strong class="text-[#D7AD57]"> {{ player.total }} pts </strong>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <button
+                type="button"
+                (click)="goToHome()"
+                class="w-full rounded-lg bg-[#D7AD57] px-4 py-3 font-bold text-[#172B35] transition hover:bg-[#E8C778]"
+              >
+                Retour à l'accueil
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
       <h2 class="mb-4 text-xl font-semibold">Tableau des scores</h2>
 
       <app-score-table
         [players]="currentGame.players"
         [rounds]="currentGame.rounds"
         [totals]="totals()"
+        [readOnly]="currentGame.status === 'completed'"
         (scoreChange)="onScoreChange($event)"
       />
+
+      @if (currentGame.status === 'in-progress') {
+        <div class="mt-4">
+          @if (canFinishGame()) {
+            <button
+              type="button"
+              (click)="requestFinishGame()"
+              class="w-full rounded-lg bg-[#D7AD57] px-4 py-4 font-bold text-[#172B35] transition hover:bg-[#E8C778]"
+            >
+              Terminer la partie
+            </button>
+          } @else {
+            <p class="text-center text-sm text-[#B8C7C9]">
+              Renseignez tous les scores des 10 manches pour terminer la partie.
+            </p>
+          }
+        </div>
+      }
+
+      @if (showFinishConfirmation()) {
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          role="presentation"
+        >
+          <div
+            class="w-full max-w-md rounded-2xl border border-[#D7AD57] bg-[#172B35] p-6 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="finish-dialog-title"
+            aria-describedby="finish-dialog-description"
+          >
+            <div class="mb-5 text-center">
+              <div class="mb-3 text-3xl text-[#D7AD57]">⚑</div>
+
+              <h2 id="finish-dialog-title" class="text-xl font-bold text-[#E8DFC9]">
+                Terminer la partie ?
+              </h2>
+            </div>
+
+            <p
+              id="finish-dialog-description"
+              class="text-center text-sm leading-relaxed text-[#E8DFC9]"
+            >
+              Tous les scores sont renseignés. Vérifiez une dernière fois le tableau avant de
+              confirmer.
+            </p>
+
+            <p class="mt-3 text-center text-xs text-[#B8C7C9]">
+              Cette action empêchera toute modification ultérieure des scores.
+            </p>
+
+            <div class="mt-6 space-y-3">
+              <button
+                type="button"
+                (click)="confirmFinishGame()"
+                class="w-full rounded-lg bg-[#D7AD57] px-4 py-3 font-bold text-[#172B35] transition hover:bg-[#E8C778]"
+              >
+                Confirmer la fin de partie
+              </button>
+
+              <button
+                type="button"
+                (click)="cancelFinishGame()"
+                class="w-full rounded-lg border border-[#E8DFC9] px-4 py-3 font-medium text-[#E8DFC9] transition hover:bg-[#244854]"
+              >
+                Continuer la partie
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </section>
   } @else {
-    <h1 class="text-2xl font-bold">Partie introuvable</h1>
-    <p class="mt-2">Cette partie n'existe pas ou n'est plus disponible.</p>
+    <main class="mx-auto max-w-lg py-6">
+      <header class="mb-8 text-center">
+        <h1 class="text-4xl font-bold tracking-wide text-[#D7AD57]">SkullFlix</h1>
+        <p class="mt-2 text-[#E8DFC9]">Nouvelle partie</p>
+      </header>
+
+      <section class="space-y-6">
+        <div>
+          <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-lg font-semibold">Joueurs</h2>
+            <span class="text-sm text-[#B8C7C9]"> {{ playerNames().length }} / 8 </span>
+          </div>
+
+          <div class="space-y-3">
+            @for (player of playerNames(); track $index; let i = $index) {
+              <div class="flex items-center gap-2">
+                <span class="w-6 text-sm text-[#D7AD57]"> {{ i + 1 }}. </span>
+
+                <input
+                  type="text"
+                  [value]="player"
+                  (input)="updatePlayerName(i, $any($event.target).value)"
+                  [placeholder]="'Nom du joueur ' + (i + 1)"
+                  maxlength="20"
+                  class="min-w-0 flex-1 rounded-lg border border-[#244854] bg-[#244854] px-4 py-3 text-[#E8DFC9] outline-none placeholder:text-[#9BAEB1] focus:border-[#D7AD57]"
+                />
+
+                @if (playerNames().length > 2) {
+                  <button
+                    type="button"
+                    (click)="removePlayer(i)"
+                    class="rounded-lg px-3 py-3 text-[#E8DFC9] hover:bg-[#244854]"
+                    [attr.aria-label]="'Supprimer le joueur ' + (i + 1)"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          @if (playerNames().length < 8) {
+            <button
+              type="button"
+              (click)="addPlayer()"
+              class="mt-4 w-full rounded-lg border border-dashed border-[#D7AD57] px-4 py-3 text-sm font-medium text-[#D7AD57] transition hover:bg-[#244854]"
+            >
+              + Ajouter un joueur
+            </button>
+          }
+        </div>
+
+        <button
+          type="button"
+          (click)="createGame()"
+          class="w-full rounded-lg bg-[#D7AD57] px-4 py-4 font-bold text-[#172B35] transition hover:bg-[#E8C778]"
+        >
+          Créer la partie
+        </button>
+      </section>
+    </main>
   }
 </main>

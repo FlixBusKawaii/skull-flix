@@ -10,7 +10,7 @@ describe('StorageService', () => {
     createdAt: '2026-10-11T10:00:00.000Z',
     completedAt: null,
     status: 'in-progress',
-    roundCount: 6,
+    roundCount: 10,
     players: [
       { id: 'player-1', name: 'Alice' },
       { id: 'player-2', name: 'Bob' },

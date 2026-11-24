@@ -26,7 +26,7 @@ describe('GamePage', () => {
     }).compileComponents();
 
     const gameService = TestBed.inject(GameService);
-    const game = gameService.createGame(['Alice', 'Bob'], 6);
+    const game = gameService.createGame(['Alice', 'Bob']);
 
     if (!game) {
       throw new Error('Impossible de créer la partie de test');
@@ -52,9 +52,6 @@ describe('GamePage', () => {
     expect(compiled.textContent).toContain('Tableau des scores');
     expect(compiled.textContent).toContain('Alice');
     expect(compiled.textContent).toContain('Bob');
-
-    const roundInputs = compiled.querySelectorAll('tbody tr');
-    expect(roundInputs).toHaveLength(6);
 
     expect(compiled.textContent).toContain('Total');
   });

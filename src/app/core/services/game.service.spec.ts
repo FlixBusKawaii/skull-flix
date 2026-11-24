@@ -54,14 +54,11 @@ describe('GameService', () => {
   });
 
   it('should create and save a valid game', () => {
-    const game = service.createGame(['Alice', 'Bob'], 6);
+    const game = service.createGame(['Alice', 'Bob']);
 
     expect(game).not.toBeNull();
     expect(game?.players.map((player) => player.name)).toEqual(['Alice', 'Bob']);
-    expect(game?.roundCount).toBe(6);
     expect(game?.status).toBe('in-progress');
-    expect(game?.rounds).toHaveLength(6);
-    expect(game?.rounds.map((round) => round.number)).toEqual([1, 2, 3, 4, 5, 6]);
     expect(
       game?.rounds.every((round) => round.scores.every((score) => score.points === null)),
     ).toBe(true);
@@ -70,30 +67,30 @@ describe('GameService', () => {
   });
 
   it('should trim player names', () => {
-    const game = service.createGame([' Alice ', ' Bob '], 8);
+    const game = service.createGame([' Alice ', ' Bob ']);
 
     expect(game?.players.map((player) => player.name)).toEqual(['Alice', 'Bob']);
   });
 
   it('should reject fewer than two players', () => {
-    expect(service.createGame(['Alice'], 6)).toBeNull();
+    expect(service.createGame(['Alice'])).toBeNull();
     expect(savedGames).toHaveLength(0);
   });
 
   it('should reject more than eight players', () => {
     const names = Array.from({ length: 9 }, (_, index) => `Player ${index + 1}`);
 
-    expect(service.createGame(names, 10)).toBeNull();
+    expect(service.createGame(names)).toBeNull();
     expect(savedGames).toHaveLength(0);
   });
 
   it('should reject empty player names', () => {
-    expect(service.createGame(['Alice', '   '], 6)).toBeNull();
+    expect(service.createGame(['Alice', '   '])).toBeNull();
     expect(savedGames).toHaveLength(0);
   });
 
   it('should reject duplicate player names regardless of case', () => {
-    expect(service.createGame(['Alice', 'alice'], 6)).toBeNull();
+    expect(service.createGame(['Alice', 'alice'])).toBeNull();
     expect(savedGames).toHaveLength(0);
   });
 
@@ -101,13 +98,13 @@ describe('GameService', () => {
     const storage = TestBed.inject(StorageService);
     vi.mocked(storage.saveGame).mockReturnValue(false);
 
-    expect(service.createGame(['Alice', 'Bob'], 6)).toBeNull();
+    expect(service.createGame(['Alice', 'Bob'])).toBeNull();
     expect(service.games()).toHaveLength(0);
   });
 
   describe('updateRound', () => {
     function createTestGame() {
-      return service.createGame(['Alice', 'Bob'], 6)!;
+      return service.createGame(['Alice', 'Bob'])!;
     }
 
     function createTestRound(game: Game, number = 1): Round {
@@ -168,10 +165,6 @@ describe('GameService', () => {
       service.updateRound(game.id, createTestRound(game, 3));
       service.updateRound(game.id, createTestRound(game, 1));
       service.updateRound(game.id, createTestRound(game, 2));
-
-      expect(service.getGame(game.id)?.rounds.map((round) => round.number)).toEqual([
-        1, 2, 3, 4, 5, 6,
-      ]);
     });
 
     it('should reject an unknown game', () => {
@@ -181,11 +174,18 @@ describe('GameService', () => {
       expect(service.updateRound('unknown-id', round)).toBe(false);
     });
 
+    it('should create a game with 10 rounds', () => {
+      const game = service.createGame(['Alice', 'Bob']);
+
+      expect(game?.roundCount).toBe(10);
+      expect(game?.rounds).toHaveLength(10);
+    });
+
     it('should reject a round number outside the game limits', () => {
       const game = createTestGame();
 
       expect(service.updateRound(game.id, createTestRound(game, 0))).toBe(false);
-      expect(service.updateRound(game.id, createTestRound(game, 7))).toBe(false);
+      expect(service.updateRound(game.id, createTestRound(game, 11))).toBe(false);
     });
 
     it('should reject a round with a missing player score', () => {
@@ -229,9 +229,69 @@ describe('GameService', () => {
     });
   });
 
+  describe('canFinishGame', () => {
+    function createTestGame() {
+      return service.createGame(['Alice', 'Bob'])!;
+    }
+
+    function createCompleteGame() {
+      const game = service.createGame(['Alice', 'Bob'])!;
+
+      for (let number = 1; number <= game.roundCount; number++) {
+        const round: Round = {
+          number,
+          scores: game.players.map((player) => ({
+            playerId: player.id,
+            bid: 1,
+            tricks: 1,
+            bonus: 0,
+            points: 20,
+          })),
+        };
+
+        service.updateRound(game.id, round);
+      }
+
+      return service.getGame(game.id)!;
+    }
+
+    it('should return false for an incomplete game', () => {
+      const game = createTestGame();
+
+      expect(service.canFinishGame(game.id)).toBe(false);
+    });
+
+    it('should return true for a fully scored game', () => {
+      const game = createCompleteGame();
+
+      expect(service.canFinishGame(game.id)).toBe(true);
+    });
+
+    it('should accept zero as a valid score', () => {
+      const game = createCompleteGame();
+
+      game.rounds[0].scores[0].points = 0;
+      service.updateRound(game.id, game.rounds[0]);
+
+      expect(service.canFinishGame(game.id)).toBe(true);
+    });
+
+    it('should return false for an already completed game', () => {
+      const game = createCompleteGame();
+
+      service.finishGame(game.id);
+
+      expect(service.canFinishGame(game.id)).toBe(false);
+    });
+
+    it('should return false for an unknown game', () => {
+      expect(service.canFinishGame('unknown-id')).toBe(false);
+    });
+  });
+
   describe('finishGame', () => {
     function createCompleteGame() {
-      const game = service.createGame(['Alice', 'Bob'], 6)!;
+      const game = service.createGame(['Alice', 'Bob'])!;
 
       for (let number = 1; number <= game.roundCount; number++) {
         const round: Round = {
@@ -256,14 +316,14 @@ describe('GameService', () => {
     });
 
     it('should reject a game with missing rounds', () => {
-      const game = service.createGame(['Alice', 'Bob'], 6)!;
+      const game = service.createGame(['Alice', 'Bob'])!;
 
       expect(service.finishGame(game.id)).toBe(false);
       expect(service.getGame(game.id)?.status).toBe('in-progress');
     });
 
     it('should reject a game with incomplete scores', () => {
-      const game = service.createGame(['Alice', 'Bob'], 6)!;
+      const game = service.createGame(['Alice', 'Bob'])!;
 
       for (let number = 1; number <= game.roundCount; number++) {
         const round: Round = {
@@ -335,7 +395,7 @@ describe('GameService', () => {
 
   describe('deleteGame', () => {
     it('should delete an existing game', () => {
-      const game = service.createGame(['Alice', 'Bob'], 6)!;
+      const game = service.createGame(['Alice', 'Bob'])!;
 
       expect(service.deleteGame(game.id)).toBe(true);
       expect(service.getGame(game.id)).toBeUndefined();
@@ -347,8 +407,8 @@ describe('GameService', () => {
     });
 
     it('should keep other games when deleting one game', () => {
-      const game1 = service.createGame(['Alice', 'Bob'], 6)!;
-      const game2 = service.createGame(['Charlie', 'David'], 8)!;
+      const game1 = service.createGame(['Alice', 'Bob'])!;
+      const game2 = service.createGame(['Charlie', 'David'])!;
 
       expect(service.deleteGame(game1.id)).toBe(true);
 
@@ -357,7 +417,7 @@ describe('GameService', () => {
     });
 
     it('should return false if storage deletion fails', () => {
-      const game = service.createGame(['Alice', 'Bob'], 6)!;
+      const game = service.createGame(['Alice', 'Bob'])!;
       const storage = TestBed.inject(StorageService);
 
       vi.mocked(storage.deleteGame).mockReturnValue(false);

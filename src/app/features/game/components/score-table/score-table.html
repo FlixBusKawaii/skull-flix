@@ -29,6 +29,7 @@
                 (input)="onScoreInput(round.number, player.id, $event)"
                 class="w-16 rounded-md border border-[#244854] bg-[#244854] px-2 py-2 text-center text-[#E8DFC9] outline-none focus:border-[#D7AD57]"
                 [attr.aria-label]="'Score de ' + player.name + ', manche ' + round.number"
+                [readonly]="readOnly()"
               />
             </td>
           }
