@@ -60,7 +60,11 @@ describe('GameService', () => {
     expect(game?.players.map((player) => player.name)).toEqual(['Alice', 'Bob']);
     expect(game?.roundCount).toBe(6);
     expect(game?.status).toBe('in-progress');
-    expect(game?.rounds).toEqual([]);
+    expect(game?.rounds).toHaveLength(6);
+    expect(game?.rounds.map((round) => round.number)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(
+      game?.rounds.every((round) => round.scores.every((score) => score.points === null)),
+    ).toBe(true);
     expect(savedGames).toHaveLength(1);
     expect(service.games()).toHaveLength(1);
   });
@@ -121,10 +125,22 @@ describe('GameService', () => {
 
     it('should save a new round', () => {
       const game = createTestGame();
-      const round = createTestRound(game);
+      const firstRound = createTestRound(game, 1);
 
-      expect(service.updateRound(game.id, round)).toBe(true);
-      expect(service.getGame(game.id)?.rounds).toEqual([round]);
+      const updatedRound: Round = {
+        ...firstRound,
+        scores: firstRound.scores.map((score) => ({
+          ...score,
+          bid: score.playerId === game.players[0].id ? 0 : 1,
+          tricks: score.playerId === game.players[0].id ? 0 : 1,
+        })),
+      };
+
+      expect(service.updateRound(game.id, updatedRound)).toBe(true);
+
+      const savedRounds = service.getGame(game.id)!.rounds;
+      expect(savedRounds).toHaveLength(game.roundCount);
+      expect(savedRounds[0]).toEqual(updatedRound);
     });
 
     it('should replace an existing round instead of duplicating it', () => {
@@ -142,7 +158,7 @@ describe('GameService', () => {
       expect(service.updateRound(game.id, updatedRound)).toBe(true);
 
       const savedRounds = service.getGame(game.id)!.rounds;
-      expect(savedRounds).toHaveLength(1);
+      expect(savedRounds).toHaveLength(game.roundCount);
       expect(savedRounds[0]).toEqual(updatedRound);
     });
 
@@ -153,7 +169,9 @@ describe('GameService', () => {
       service.updateRound(game.id, createTestRound(game, 1));
       service.updateRound(game.id, createTestRound(game, 2));
 
-      expect(service.getGame(game.id)?.rounds.map((round) => round.number)).toEqual([1, 2, 3]);
+      expect(service.getGame(game.id)?.rounds.map((round) => round.number)).toEqual([
+        1, 2, 3, 4, 5, 6,
+      ]);
     });
 
     it('should reject an unknown game', () => {
@@ -180,7 +198,8 @@ describe('GameService', () => {
       };
 
       expect(service.updateRound(game.id, incompleteRound)).toBe(false);
-      expect(service.getGame(game.id)?.rounds).toHaveLength(0);
+      expect(service.getGame(game.id)?.rounds).toHaveLength(game.roundCount);
+      expect(service.getGame(game.id)?.rounds[0]).not.toEqual(incompleteRound);
     });
 
     it('should reject duplicate player scores', () => {
@@ -278,12 +297,12 @@ describe('GameService', () => {
     it('should select the player with the highest score as winner', () => {
       const game = createCompleteGame();
 
-      game.rounds.forEach(round => {
+      game.rounds.forEach((round) => {
         round.scores[0].points = 30;
         round.scores[1].points = 10;
       });
 
-      game.rounds.forEach(round => {
+      game.rounds.forEach((round) => {
         service.updateRound(game.id, round);
       });
 

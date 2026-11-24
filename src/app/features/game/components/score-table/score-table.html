@@ -1,0 +1,51 @@
+<div class="overflow-x-auto">
+  <table class="w-full min-w-max border-collapse text-center">
+    <thead>
+      <tr>
+        <th class="sticky left-0 top-0 z-30 bg-[#172B35] px-3 py-3 text-left text-[#E8DFC9]">
+          Manche
+        </th>
+
+        @for (player of players(); track player.id) {
+          <th class="sticky top-0 z-20 bg-[#172B35] px-3 py-3 text-[#E8DFC9]">
+            {{ player.name }}
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (round of rounds(); track round.number) {
+        <tr class="border-b border-[#244854]">
+          <th class="sticky left-0 bg-[#172B35] px-3 py-3 text-left text-[#E8DFC9]">
+            {{ round.number }}
+          </th>
+
+          @for (player of players(); track player.id) {
+            <td class="px-2 py-2">
+              <input
+                type="number"
+                [value]="getScore(round, player.id) ?? ''"
+                (input)="onScoreInput(round.number, player.id, $event)"
+                class="w-16 rounded-md border border-[#244854] bg-[#244854] px-2 py-2 text-center text-[#E8DFC9] outline-none focus:border-[#D7AD57]"
+                [attr.aria-label]="'Score de ' + player.name + ', manche ' + round.number"
+              />
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+
+    <tfoot class="sticky bottom-0 z-10 bg-[#172B35]">
+      <tr class="border-t-2 border-[#D7AD57]">
+        <th class="sticky left-0 bg-[#172B35] px-3 py-3 text-left text-[#D7AD57]">Total</th>
+
+        @for (player of players(); track player.id) {
+          <td class="px-3 py-3 font-bold text-[#D7AD57]">
+            {{ totals().get(player.id) ?? 0 }}
+          </td>
+        }
+      </tr>
+    </tfoot>
+  </table>
+</div>
