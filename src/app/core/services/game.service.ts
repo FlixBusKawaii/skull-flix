@@ -33,6 +33,17 @@ export class GameService {
       name,
     }));
 
+    const rounds: Round[] = Array.from({ length: roundCount }, (_, index) => ({
+      number: index + 1,
+      scores: players.map((player) => ({
+        playerId: player.id,
+        bid: null,
+        tricks: null,
+        bonus: 0,
+        points: null,
+      })),
+    }));
+
     const game: Game = {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
@@ -40,7 +51,7 @@ export class GameService {
       status: 'in-progress',
       roundCount,
       players,
-      rounds: [],
+      rounds,
       winnerId: null,
     };
 
