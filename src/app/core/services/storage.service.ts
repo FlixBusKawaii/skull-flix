@@ -66,4 +66,8 @@ export class StorageService {
       return false;
     }
   }
+
+  replaceGames(games: Game[]): boolean {
+    return this.saveGames(games);
+  }
 }

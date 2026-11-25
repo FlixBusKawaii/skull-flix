@@ -1,0 +1,156 @@
+<main class="p-4 text-[#E8DFC9]">
+  <header class="mb-8">
+    <h1 class="text-2xl font-bold text-[#D7AD57]">Paramètres</h1>
+    <p class="mt-2 text-sm text-[#B8C7C9]">
+      Gérez vos données et les informations de l'application.
+    </p>
+  </header>
+
+  <section class="space-y-4">
+    <h2 class="text-lg font-semibold">Gestion des données</h2>
+
+    <div class="rounded-xl border border-[#45616A] bg-[#244854] p-4">
+      <div class="mb-4">
+        <h3 class="font-semibold text-[#D7AD57]">Sauvegarder mes parties</h3>
+        <p class="mt-1 text-sm text-[#B8C7C9]">
+          Exportez toutes vos parties dans un fichier pour conserver votre progression ou la
+          transférer sur un autre appareil.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        (click)="exportBackup()"
+        class="w-full rounded-lg bg-[#D7AD57] px-4 py-3 font-bold text-[#172B35] transition hover:bg-[#E8C778]"
+      >
+        ↓ Exporter mes données
+      </button>
+
+      @if (exportMessage()) {
+        <p
+          class="mt-3 text-center text-sm"
+          [class.text-green-400]="exportSuccess()"
+          [class.text-red-400]="!exportSuccess()"
+          role="status"
+        >
+          {{ exportMessage() }}
+        </p>
+      }
+    </div>
+
+    <div class="rounded-xl border border-[#45616A] bg-[#244854] p-4">
+      <div class="mb-4">
+        <h3 class="font-semibold text-[#D7AD57]">Restaurer mes parties</h3>
+        <p class="mt-1 text-sm text-[#B8C7C9]">
+          Importez un fichier de sauvegarde pour retrouver vos parties précédemment enregistrées.
+        </p>
+      </div>
+
+      <div
+        class="cursor-not-allowed rounded-lg border text-center border-[#D7AD57] px-4 py-3 font-bold text-[#D7AD57]"
+      >
+        <label for="backup-file"> ↑ Importer une sauvegarde </label>
+
+        <input
+          id="backup-file"
+          type="file"
+          accept=".json,application/json"
+          class="hidden"
+          (change)="onBackupFileSelected($event)"
+        />
+      </div>
+
+      @if (importMessage()) {
+        <p
+          class="text-sm"
+          [class.text-green-600]="importSuccess()"
+          [class.text-red-600]="!importSuccess()"
+        >
+          {{ importMessage() }}
+        </p>
+      }
+
+      @if (importSummary(); as summary) {
+        <div class="mt-4 rounded-lg border border-[#D7AD57]/40 p-4">
+          <h4 class="font-semibold">Contenu de la sauvegarde</h4>
+
+          <p>{{ summary.total }} partie(s) au total</p>
+          <p>{{ summary.inProgress }} partie(s) en cours</p>
+          <p>{{ summary.completed }} partie(s) terminée(s)</p>
+        </div>
+        <button
+          type="button"
+          (click)="requestImportConfirmation()"
+          class="mt-4 w-full rounded-lg bg-[#172B35] px-4 py-3 font-semibold text-white transition hover:bg-[#244854]"
+        >
+          Remplacer mes parties
+        </button>
+      }
+
+      @if (showImportConfirmation()) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div class="w-full max-w-md rounded-xl bg-[#E8DFC9] p-6 text-[#172B35] shadow-xl">
+            <h2 class="mb-3 text-xl font-bold">Confirmer la restauration ?</h2>
+
+            <p class="mb-4">
+              Attention : toutes les parties actuellement enregistrées sur cet appareil seront
+              remplacées par celles de votre sauvegarde.
+            </p>
+
+            @if (importSummary(); as summary) {
+              <div class="mb-5 rounded-lg bg-white/50 p-3 text-sm">
+                <p>
+                  <strong>{{ summary.total }}</strong> partie(s) au total
+                </p>
+                <p>{{ summary.inProgress }} partie(s) en cours</p>
+                <p>{{ summary.completed }} partie(s) terminée(s)</p>
+              </div>
+            }
+
+            <div class="flex flex-col gap-3">
+              <button
+                type="button"
+                (click)="confirmImport()"
+                class="w-full rounded-lg bg-[#172B35] px-4 py-3 font-semibold text-white transition hover:bg-[#244854]"
+              >
+                Confirmer le remplacement
+              </button>
+
+              <button
+                type="button"
+                (click)="cancelImport()"
+                class="w-full rounded-lg border border-[#172B35]/30 px-4 py-3 font-semibold transition hover:bg-[#172B35]/10"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="mt-8 space-y-3">
+    <h2 class="text-lg font-semibold">À propos</h2>
+
+    <div class="rounded-xl border border-[#45616A] bg-[#244854] p-4">
+      <h3 class="font-semibold text-[#D7AD57]">SkullFlix</h3>
+      <p class="mt-2 text-sm text-[#B8C7C9]">Application de suivi des scores de Skull King.</p>
+      <p class="mt-3 text-xs text-[#B8C7C9]">
+        Les données sont enregistrées localement sur cet appareil.
+      </p>
+    </div>
+  </section>
+
+  <div class="mt-8 border-t border-[#244854] pt-6">
+    <div class="flex flex-col items-center gap-2">
+      <img
+        src="/images/flixbus-kawaii.png"
+        alt=""
+        class="h-12 w-10 object-cover object-[center_85%]"
+      />
+
+      <p class="text-sm text-[#E8DFC9]">Développé par FlixBus Kawaii</p>
+    </div>
+  </div>
+</main>
