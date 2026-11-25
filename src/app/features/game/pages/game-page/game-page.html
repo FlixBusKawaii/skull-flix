@@ -86,6 +86,13 @@
               Renseignez tous les scores des 10 manches pour terminer la partie.
             </p>
           }
+          <button
+            type="button"
+            (click)="requestCancelGame()"
+            class="mt-3 w-full rounded-lg border border-red-400/60 px-4 py-3 font-medium text-red-300 transition hover:bg-red-400/10"
+          >
+            Annuler la partie
+          </button>
         </div>
       }
 
@@ -133,6 +140,58 @@
               <button
                 type="button"
                 (click)="cancelFinishGame()"
+                class="w-full rounded-lg border border-[#E8DFC9] px-4 py-3 font-medium text-[#E8DFC9] transition hover:bg-[#244854]"
+              >
+                Continuer la partie
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (showCancelConfirmation()) {
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          role="presentation"
+        >
+          <div
+            class="w-full max-w-md rounded-2xl border border-red-400/60 bg-[#172B35] p-6 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-dialog-title"
+            aria-describedby="cancel-dialog-description"
+          >
+            <div class="mb-5 text-center">
+              <div class="mb-3 text-3xl text-red-400">⚠</div>
+
+              <h2 id="cancel-dialog-title" class="text-xl font-bold text-[#E8DFC9]">
+                Annuler la partie ?
+              </h2>
+            </div>
+
+            <p
+              id="cancel-dialog-description"
+              class="text-center text-sm leading-relaxed text-[#E8DFC9]"
+            >
+              Êtes-vous sûr de vouloir annuler cette partie ?
+            </p>
+
+            <p class="mt-3 text-center text-xs text-red-300">
+              Cette action est définitive. Tous les scores de cette partie seront supprimés.
+            </p>
+
+            <div class="mt-6 space-y-3">
+              <button
+                type="button"
+                (click)="confirmCancelGame()"
+                class="w-full rounded-lg bg-red-500 px-4 py-3 font-bold text-white transition hover:bg-red-600"
+              >
+                Confirmer l'annulation
+              </button>
+
+              <button
+                type="button"
+                (click)="cancelCancelGame()"
                 class="w-full rounded-lg border border-[#E8DFC9] px-4 py-3 font-medium text-[#E8DFC9] transition hover:bg-[#244854]"
               >
                 Continuer la partie

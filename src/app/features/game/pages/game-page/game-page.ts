@@ -22,6 +22,8 @@ export class GamePage {
   readonly showFinishConfirmation = signal(false);
   readonly showResultsModal = signal(false);
 
+  readonly showCancelConfirmation = signal(false);
+
   readonly finalScores = computed(() => {
     const currentGame = this.game();
 
@@ -148,5 +150,30 @@ export class GamePage {
   goToHome(): void {
     this.showResultsModal.set(false);
     void this.router.navigate(['/']);
+  }
+
+  requestCancelGame(): void {
+    const currentGame = this.game();
+
+    if (!currentGame || currentGame.status !== 'in-progress') return;
+
+    this.showCancelConfirmation.set(true);
+  }
+
+  confirmCancelGame(): void {
+    const currentGame = this.game();
+
+    if (!currentGame || currentGame.status !== 'in-progress') return;
+
+    const success = this.gameService.deleteGame(currentGame.id);
+
+    if (success) {
+      this.showCancelConfirmation.set(false);
+      void this.router.navigate(['/']);
+    }
+  }
+
+  cancelCancelGame(): void {
+    this.showCancelConfirmation.set(false);
   }
 }
