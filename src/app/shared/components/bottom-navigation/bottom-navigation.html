@@ -1,0 +1,33 @@
+<nav
+  class="fixed inset-x-0 bottom-0 z-40 border-t border-[#45616A] bg-[#1D3A45]"
+  aria-label="Navigation principale"
+>
+  <div class="mx-auto grid max-w-5xl grid-cols-3">
+    <a
+      routerLink="/"
+      [style.color]="isGameRoute() ? '#D7AD57' : '#B8C7C9'"
+      class="flex flex-col items-center gap-1 border-r border-[#45616A] px-3 py-3 text-[#B8C7C9] transition-colors hover:text-[#D7AD57]"
+    >
+      <span class="text-xl" aria-hidden="true">⚔</span>
+      <span class="text-xs font-medium">Partie</span>
+    </a>
+
+    <a
+      routerLink="/history"
+      routerLinkActive="text-[#D7AD57]"
+      class="flex flex-col items-center gap-1 border-r border-[#45616A] px-3 py-3 text-[#B8C7C9] transition-colors hover:text-[#D7AD57]"
+    >
+      <span class="text-xl" aria-hidden="true">◷</span>
+      <span class="text-xs font-medium">Historique</span>
+    </a>
+
+    <a
+      routerLink="/settings"
+      routerLinkActive="text-[#D7AD57]"
+      class="flex flex-col items-center gap-1 px-3 py-3 text-[#B8C7C9] transition-colors hover:text-[#D7AD57]"
+    >
+      <span class="text-xl" aria-hidden="true">⚙</span>
+      <span class="text-xs font-medium">Paramètres</span>
+    </a>
+  </div>
+</nav>
