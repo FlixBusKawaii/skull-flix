@@ -1,0 +1,43 @@
+<main class="min-h-screen bg-[#172B35] p-4 text-[#E8DFC9]">
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-[#D7AD57]">SkullFlix</h1>
+    <p class="mt-2 text-lg">Historique des parties</p>
+  </header>
+
+  @if (completedGames().length === 0) {
+    <div class="rounded-xl border border-[#244854] bg-[#244854] p-6 text-center">
+      <p class="text-lg font-semibold">Aucune partie terminée</p>
+      <p class="mt-2 text-sm text-[#B8C7C9]">Tes parties terminées apparaîtront ici.</p>
+    </div>
+  } @else {
+    <section class="space-y-4">
+      @for (game of completedGames(); track game.id) {
+        <article class="rounded-xl border border-[#244854] bg-[#244854] p-4">
+          <h2 class="font-semibold">Partie du {{ game.completedAt | date: 'dd/MM/yyyy' }}</h2>
+
+          <p class="mt-1 text-sm text-[#B8C7C9]">{{ game.players.length }} joueurs</p>
+
+          <div class="mt-4 space-y-2 border-t border-[#45616A] pt-4">
+            <h3 class="text-sm font-semibold text-[#D7AD57]">Classement final</h3>
+
+            @for (player of getRanking(game.id); track player.id; let i = $index) {
+              <div class="flex items-center justify-between text-sm">
+                <span> {{ i + 1 }}. {{ player.name }} </span>
+
+                <strong class="text-[#D7AD57]"> {{ player.total }} pts </strong>
+              </div>
+            }
+          </div>
+
+          <button
+            type="button"
+            (click)="openGame(game.id)"
+            class="mt-4 w-full rounded-lg bg-[#D7AD57] px-4 py-3 font-bold text-[#172B35] transition hover:bg-[#E8C778]"
+          >
+            Voir la partie
+          </button>
+        </article>
+      }
+    </section>
+  }
+</main>
