@@ -207,4 +207,11 @@ export class GameService {
   private refreshGames(): void {
     this.gamesState.set(this.storage.getGames());
   }
+
+  replaceGames(games: Game[]): boolean {
+    if (!this.storage.replaceGames(games)) return false;
+
+    this.refreshGames();
+    return true;
+  }
 }
