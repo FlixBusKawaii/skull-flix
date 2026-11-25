@@ -1,59 +1,59 @@
 # SkullFlix
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.26.
+SkullFlix est une application web permettant de suivre facilement les scores de parties de **Skull King**. Elle a été conçue pour offrir une saisie rapide des scores, notamment sur mobile.
 
-## Development server
+## Fonctionnalités
 
-To start a local development server, run:
+- Création d'une partie avec 2 à 8 joueurs.
+- Tableau de scores sur 10 manches, avec saisie manuelle des points.
+- Calcul automatique des totaux et classement des joueurs.
+- Sauvegarde automatique des parties dans le navigateur.
+- Historique des parties terminées et consultation des résultats.
+- Export et import des sauvegardes au format JSON.
 
-```bash
-ng serve
-```
+Les données sont stockées localement dans le navigateur. Aucun compte ni serveur n'est nécessaire.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Technologies
 
-## Code scaffolding
+- Angular
+- TypeScript
+- Tailwind CSS
+- Vitest
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Installation et lancement
 
-```bash
-ng generate component component-name
-```
+Prérequis : Node.js et npm.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Cloner le dépôt, puis installer les dépendances :
 
 ```bash
-ng build
+npm ci
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Lancer le serveur de développement :
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+L'application est ensuite accessible à l'adresse `http://localhost:4200/`.
 
-For end-to-end (e2e) testing, run:
+## Vérifications
+
+Exécuter les tests :
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Vérifier le code avec ESLint :
 
-## Additional Resources
+```bash
+npm run lint
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Construire l'application pour la production :
+
+```bash
+npm run build
+```
