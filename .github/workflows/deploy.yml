@@ -35,6 +35,9 @@ jobs:
       - name: Build Angular application
         run: npm run build -- --base-href /skull-flix/
 
+      - name: Configure SPA fallback
+        run: cp dist/skull-flix/browser/index.html dist/skull-flix/browser/404.html
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
